@@ -18,7 +18,7 @@ category = "Badge"
 
 [entry]
 # The name of your entry point `Application` class
-class = "FerdiApp"
+# class = "FerdiApp"
 
 [metadata]
 # Your nickname.  Must be at most 32 characters!
