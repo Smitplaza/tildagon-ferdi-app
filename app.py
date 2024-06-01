@@ -71,19 +71,17 @@ class FerdiApp(app.App):
         ctx.rgb(1, 0, 0).move_to(-80, 0).text("FerdiApp")
         ctx.restore()"""
 
-    async def xrun(self, render_update):
+    async def run(self, render_update):
         # Render initial state
         await render_update()
 
         while True:
             await asyncio.sleep(.1)
 
-            self.led_pos += 1
-            for i in range(12):
-                if i == self.led_pos:
-                    tildagonos.leds[i] = (100, 0, 0)
-                else:
-                    tildagonos.leds[i] = (0, 0, 0)
+
+            tildagonos.leds[self.led_pos] = (0, 0, 0)
+            self.led_pos = self.led_pos + 1 if self.led_pos < 12 else 0
+            tildagonos.leds[self.led_pos] = (100, 0, 0)
 
             # Tick menu
             #self.menu.down_handler()
