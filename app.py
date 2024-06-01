@@ -18,6 +18,8 @@ class FerdiApp(app.App):
         super().__init__()
 
         self.menu = None
+        self.led_update_counter = 0
+        self.menu_update_counter = 0
         self.button_states = Buttons(self)
         self.notification = None
         self.data_list = ["Hi there", "i'm Ferdinand", "Temp: 18C", "HId: 80%"]
@@ -33,6 +35,21 @@ class FerdiApp(app.App):
 
     def update(self, delta):
         self.menu.update(delta)
+
+        self.led_update_counter += 1
+        if self.led_update_counter > 2:
+            tildagonos.leds[self.led_pos] = (0, 0, 0)
+            self.led_pos = self.led_pos + 1 if self.led_pos < 12 else 0
+            tildagonos.leds[self.led_pos] = (100, 0, 0)
+            self.led_update_counter = 0
+
+        self.menu_update_counter += 1
+        if self.menu_update_counter > 10:
+            # Tick menu
+            self.menu.down_handler()
+            self.menu_update_counter=0
+
+
 
         if self.notification:
             self.notification.update(delta)
@@ -71,7 +88,7 @@ class FerdiApp(app.App):
         ctx.rgb(1, 0, 0).move_to(-80, 0).text("FerdiApp")
         ctx.restore()"""
 
-    async def run(self, render_update):
+    async def Xrun(self, render_update):
         # Render initial state
         await render_update()
 
@@ -80,7 +97,7 @@ class FerdiApp(app.App):
 
 
             tildagonos.leds[self.led_pos] = (0, 0, 0)
-            self.led_pos = self.led_pos + 1 if self.led_pos < 12 else 0
+            self.led_pos = self.led_pos + 1 if self.led_pos < 11 else 0
             tildagonos.leds[self.led_pos] = (100, 0, 0)
 
             # Tick menu
@@ -98,7 +115,6 @@ class FerdiApp(app.App):
 
             await render_update()
 
-"""
     async def background_task(self):
         while True:
             await asyncio.sleep(1)
@@ -108,6 +124,5 @@ class FerdiApp(app.App):
                 display.get_fps(),
                 f"mem used: {gc.mem_alloc()}, mem free:{gc.mem_free()}",
             )
-"""
 
 __app_export__ = FerdiApp
