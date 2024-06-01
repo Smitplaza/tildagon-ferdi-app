@@ -6,6 +6,8 @@ from .names import Names
 from events.input import Buttons, BUTTON_TYPES
 from app_components import Menu, Notification, clear_background
 from app_components.tokens import clear_background, set_color
+from system.eventbus import eventbus
+from system.patterndisplay.events import PatternDisable
 import settings
 from tildagonos import tildagonos, led_colours
 
@@ -20,9 +22,12 @@ class FerdiApp(app.App):
         self.notification = None
         self.data_list = ["Hi there", "i'm Ferdinand", "Temp: 18C", "HId: 80%"]
         self.data_list_pos = 0
+        self.led_pos = 0
+
+        eventbus.emit(PatternDisable())
 
         for i in range(12):
-            tildagonos.leds[i] = (100,0,0)
+            tildagonos.leds[i] = (0,0,0)
 
         self.activate_menu()
 
@@ -72,6 +77,13 @@ class FerdiApp(app.App):
 
         while True:
             await asyncio.sleep(.1)
+
+            self.led_pos += 1
+            for i in range(12):
+                if i == self.led_pos:
+                    tildagonos.leds[i] = (100, 0, 0)
+                else:
+                    tildagonos.leds[i] = (0, 0, 0)
 
             # Tick menu
             #self.menu.down_handler()
