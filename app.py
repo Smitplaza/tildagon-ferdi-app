@@ -1,5 +1,8 @@
 import asyncio
 import app
+import gc
+import display
+import random
 
 from .names import Names
 
@@ -17,12 +20,15 @@ class FerdiApp(app.App):
     def __init__(self):
         super().__init__()
 
+        self.temp = 18.5
+        self.humidity = 80
+
         self.menu = None
         self.led_update_counter = 0
         self.menu_update_counter = 0
         self.button_states = Buttons(self)
         self.notification = None
-        self.data_list = ["Hi there", "i'm Ferdinand", "Temp: 18C", "HId: 80%"]
+        self.data_list = []
         self.data_list_pos = 0
         self.led_pos = 0
 
@@ -31,6 +37,7 @@ class FerdiApp(app.App):
         for i in range(12):
             tildagonos.leds[i] = (0,0,0)
 
+        self.update_list()
         self.activate_menu()
 
     def update(self, delta):
@@ -44,12 +51,14 @@ class FerdiApp(app.App):
             self.led_update_counter = 0
 
         self.menu_update_counter += 1
-        if self.menu_update_counter > 10:
-            # Tick menu
-            self.menu.down_handler()
+        if self.menu_update_counter > 15:
+            if self.menu.position >= len(self.data_list)-1:
+                self.update_list()
+                self.activate_menu()
+            else:
+                # Tick menu
+                self.menu.down_handler()
             self.menu_update_counter=0
-
-
 
         if self.notification:
             self.notification.update(delta)
@@ -65,8 +74,8 @@ class FerdiApp(app.App):
         self.menu = Menu(
             self,
             menu_items=self.data_list,
-            item_font_size=25,
-            focused_item_font_size=50,
+            item_font_size=20,
+            focused_item_font_size=40,
             # select_handler=self.select_handler,
             # change_handler=self.change_handler,
             back_handler=self.deactivate_menu
@@ -76,44 +85,15 @@ class FerdiApp(app.App):
     def deactivate_menu(self):
         self.menu._cleanup()
 
+    def update_list(self):
+        self.data_list = ["Hi there", "i'm Ferdinand", f"Temp: {self.temp}C", f"Hum: {self.humidity}%"]
+
     def draw(self, ctx):
         clear_background(ctx)
         self.menu.draw(ctx)
 
         if self.notification:
             self.notification.draw(ctx)
-
-        """ctx.save()
-        ctx.rgb(0.2, 0, 0).rectangle(-120, -120, 240, 240).fill()
-        ctx.rgb(1, 0, 0).move_to(-80, 0).text("FerdiApp")
-        ctx.restore()"""
-
-    async def Xrun(self, render_update):
-        # Render initial state
-        await render_update()
-
-        while True:
-            await asyncio.sleep(.1)
-
-
-            tildagonos.leds[self.led_pos] = (0, 0, 0)
-            self.led_pos = self.led_pos + 1 if self.led_pos < 11 else 0
-            tildagonos.leds[self.led_pos] = (100, 0, 0)
-
-            # Tick menu
-            #self.menu.down_handler()
-
-            """# Create a yes/no dialogue, add it to the overlays
-            dialog = YesNoDialog("Change the colour?", self)
-            self.overlays = [dialog]
-            # Wait for an answer from the dialogue, and if it was yes, randomise colour
-            if await dialog.run(render_update):
-                self.color = (random.random(), random.random(), random.random())
-
-            # Remove the dialogue and re-render
-            self.overlays = []"""
-
-            await render_update()
 
     async def background_task(self):
         while True:
@@ -124,5 +104,9 @@ class FerdiApp(app.App):
                 display.get_fps(),
                 f"mem used: {gc.mem_alloc()}, mem free:{gc.mem_free()}",
             )
+
+            self.temp = random.choice([16.0,16.5,17.0,17.5,18.0,18.5])
+            self.humidity = random.choice([70,75,80,85])
+            print(f"TEMP:{self.temp} HUM:{self.humidity}")
 
 __app_export__ = FerdiApp
