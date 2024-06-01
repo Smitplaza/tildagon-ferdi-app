@@ -5,7 +5,7 @@ from events.input import Buttons, BUTTON_TYPES
 
 
 class FerdiApp(app.App):
-    def __init__():
+    def __init__(self):
         self.button_states = Buttons(self)
 
     def update(self, delta):
