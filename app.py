@@ -7,16 +7,22 @@ from events.input import Buttons, BUTTON_TYPES
 from app_components import Menu, Notification, clear_background
 from app_components.tokens import clear_background, set_color
 import settings
+from tildagonos import tildagonos, led_colours
+
 
 
 class FerdiApp(app.App):
     def __init__(self):
         super().__init__()
 
+        self.menu = None
         self.button_states = Buttons(self)
         self.notification = None
-        self.data_list = [ "Hi there", "i'm Ferdinand", "Temp: 18C", "HId: 80%" ]
+        self.data_list = ["Hi there", "i'm Ferdinand", "Temp: 18C", "HId: 80%"]
         self.data_list_pos = 0
+
+        for i in range(12):
+            tildagonos.leds[i] = (100,0,0)
 
         self.activate_menu()
 
@@ -35,13 +41,15 @@ class FerdiApp(app.App):
 
     def activate_menu(self):
         self.menu = Menu(
-                self,
-                self.data_list,
-                #select_handler=self.select_handler,
-                #change_handler=self.change_handler,
-                back_handler=self.deactivate_menu
-                #position=self.data_list_pos
-            )
+            self,
+            menu_items=self.data_list,
+            item_font_size=25,
+            focused_item_font_size=50,
+            # select_handler=self.select_handler,
+            # change_handler=self.change_handler,
+            back_handler=self.deactivate_menu
+            # position=self.data_list_pos
+        )
 
     def deactivate_menu(self):
         self.menu._cleanup()
@@ -58,19 +66,15 @@ class FerdiApp(app.App):
         ctx.rgb(1, 0, 0).move_to(-80, 0).text("FerdiApp")
         ctx.restore()"""
 
-    async def run(self, render_update):
+    async def xrun(self, render_update):
         # Render initial state
         await render_update()
 
         while True:
-            await asyncio.sleep(2)
+            await asyncio.sleep(.1)
 
             # Tick menu
-            self.data_list_pos += 1
-            if self.data_list_pos >= len(self.data_list):
-                self.data_list_pos = 0
-
-            self.menu.position = self.data_list_pos
+            #self.menu.down_handler()
 
             """# Create a yes/no dialogue, add it to the overlays
             dialog = YesNoDialog("Change the colour?", self)
@@ -84,6 +88,7 @@ class FerdiApp(app.App):
 
             await render_update()
 
+"""
     async def background_task(self):
         while True:
             await asyncio.sleep(1)
@@ -93,7 +98,6 @@ class FerdiApp(app.App):
                 display.get_fps(),
                 f"mem used: {gc.mem_alloc()}, mem free:{gc.mem_free()}",
             )
-
-
+"""
 
 __app_export__ = FerdiApp
