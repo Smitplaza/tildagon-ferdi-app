@@ -1,9 +1,10 @@
-from app import app
+import asyncio
+import app
 
 from events.input import Buttons, BUTTON_TYPES
 
 
-class FerdiApp(App):
+class FerdiApp(app.App):
     def __init__():
         self.button_states = Buttons(self)
 
